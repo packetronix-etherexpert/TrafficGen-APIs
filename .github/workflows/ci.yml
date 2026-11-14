@@ -7,13 +7,13 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install SDK and test dependencies
@@ -28,11 +28,11 @@ jobs:
         run: pytest tests/test_smoke_live.py -v
 
   robot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ vars.TRAFFICGEN_BASE_URL != '' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - run: pip install -r robot/requirements.txt
@@ -41,20 +41,20 @@ jobs:
           TRAFFICGEN_BASE_URL: ${{ vars.TRAFFICGEN_BASE_URL }}
           TRAFFICGEN_TOKEN: ${{ secrets.TRAFFICGEN_TOKEN }}
         run: robot --outputdir robot/results robot/example.robot
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: robot-results
           path: robot/results
 
   publish-api-docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pytest
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Publish docs/ to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
