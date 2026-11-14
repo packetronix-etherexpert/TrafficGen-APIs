@@ -25,7 +25,7 @@ GitLab CI ([`.gitlab-ci.yml`](.gitlab-ci.yml)) and Jenkins ([`Jenkinsfile`](Jenk
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
 - Network access to a Traffic Generator appliance (REST API on port 9102 by default)
 - An API token, if the appliance requires authentication - see [authentication](docs/authentication.md)
 

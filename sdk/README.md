@@ -1,6 +1,6 @@
 # trafficgen-sdk
 
-Python client for the Packetronix Traffic Generator REST API. Requires Python 3.8+ and `requests`.
+Python client for the Packetronix Traffic Generator REST API. Requires Python 3.10+ and `requests`.
 
 ```bash
 pip install -e sdk/          # from a clone of this repository
