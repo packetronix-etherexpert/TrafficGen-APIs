@@ -41,7 +41,7 @@ def main():
                                                         (op.get("description") or "").strip().split("\n\n")[0]))
     out = [f"# {spec['info']['title']} - reference", "",
            f"Version {spec['info'].get('version', '')}. Base path: `/TGAPI` (for example `http://<appliance>:9102/TGAPI/ports`). "
-           "Ports are numbered from 1. See [authentication](authentication.md) for tokens.",
+           "Ports are numbered from 1. When the appliance requires authentication, sign in first - see [authentication](authentication.md).",
            "", "Generated from [`openapi/openapi.json`](openapi/openapi.json); "
            "an interactive view is in [`openapi/redoc.html`](openapi/redoc.html).", ""]
     for name, _ in GROUPS + [("Other", ())]:
