@@ -10,17 +10,10 @@ def test_base_url_forms():
         assert TrafficGenClient(u).api_url == "http://h:9102/TGAPI"
 
 
-def test_bearer_token_sent(fake):
-    s = requests.Session(); s.mount("http://", fake)
-    fake.add("GET", "/TGAPI/help", {"message": "ok"})
-    TrafficGenClient("http://h", token="pxtg_abc_def", session=s).help()
-    assert fake.calls[0]["headers"]["Authorization"] == "Bearer pxtg_abc_def"
-
-
-def test_no_auth_header_without_token(client, fake):
+def test_no_credentials_sent_before_login(client, fake):
     fake.add("GET", "/TGAPI/help", {"message": "ok"})
     client.help()
-    assert "Authorization" not in fake.calls[0]["headers"]
+    assert "Authorization" not in fake.calls[0]["headers"] and "Cookie" not in fake.calls[0]["headers"]
 
 
 def test_http_error_carries_status_and_detail(client, fake):
@@ -110,11 +103,69 @@ def test_download_pcap_writes_file(client, fake, tmp_path):
     assert open(out, "rb").read() == b"\xd4\xc3\xb2\xa1PCAPDATA"
 
 
-def test_login_success_and_failure(fake):
-    s = requests.Session(); s.mount("http://", fake)
-    fake.add("POST", "/login", None, status=303, headers={"Location": "/"})
-    TrafficGenClient("http://h:9102", session=s).login("admin", "pw")
-    assert fake.calls[0]["url"] == "http://h:9102/login"
+def test_login_posts_form_and_keeps_session_cookie(fake):
+    s = fake.mount_on(requests.Session())
+    fake.add("POST", "/login", None, status=303, headers={"Location": "/", "Set-Cookie": "px_tgen_session=abc; Path=/"})
+    fake.add("GET", "/TGAPI/ports", [])
+    tg = TrafficGenClient("http://h:9102", session=s)
+    tg.login("ci", "pw")
+    assert fake.calls[0]["url"] == "http://h:9102/login" and fake.calls[0]["json"] == "username=ci&password=pw"
+    tg.list_ports()
+    assert "px_tgen_session=abc" in fake.calls[1]["headers"].get("Cookie", "")
+
+
+def test_login_failures(fake):
+    s = fake.mount_on(requests.Session())
+    tg = TrafficGenClient("http://h:9102", session=s)
     fake.add("POST", "/login", None, status=401)
+    with pytest.raises(TrafficGenError) as e:
+        tg.login("ci", "bad")
+    assert e.value.status_code == 401 and "invalid username or password" in str(e.value)
+    fake.add("POST", "/login", None, status=429)
+    with pytest.raises(TrafficGenError) as e:
+        tg.login("ci", "bad")
+    assert e.value.status_code == 429
+
+
+def test_expired_session_logs_in_again_once(fake):
+    s = fake.mount_on(requests.Session())
+    tg = TrafficGenClient("http://h:9102", session=s)
+    fake.add("POST", "/login", None, status=303)
+    tg.login("ci", "pw")
+    fake.add_sequence("GET", "/TGAPI/ports", [(401, {"detail": "Authentication required"}), (200, [{"PortNo": 1}])])
+    assert tg.list_ports() == [{"PortNo": 1}]
+    assert len([c for c in fake.calls if c["path"] == "/login"]) == 2     # the first login plus one automatic retry
+
+
+def test_second_401_after_relogin_raises(fake):
+    s = fake.mount_on(requests.Session())
+    tg = TrafficGenClient("http://h:9102", session=s)
+    fake.add("POST", "/login", None, status=303)
+    tg.login("ci", "pw")
+    fake.add("GET", "/TGAPI/ports", {"detail": "Authentication required"}, status=401)
     with pytest.raises(TrafficGenError):
-        TrafficGenClient("http://h:9102", session=s).login("admin", "bad")
+        tg.list_ports()
+    assert len([c for c in fake.calls if c["path"] == "/login"]) == 2     # retried once, then gave up
+
+
+def test_401_without_credentials_is_not_retried(client, fake):
+    fake.add("GET", "/TGAPI/ports", {"detail": "Authentication required"}, status=401)
+    with pytest.raises(TrafficGenError):
+        client.list_ports()
+    assert len(fake.calls) == 1
+
+
+def test_logout_clears_credentials_and_calls_logout(fake):
+    s = fake.mount_on(requests.Session())
+    tg = TrafficGenClient("http://h:9102", session=s)
+    fake.add("POST", "/login", None, status=303); fake.add("GET", "/logout", None, status=303)
+    tg.login("ci", "pw"); tg.logout()
+    assert fake.calls[-1]["path"] == "/logout" and tg._credentials is None
+
+
+def test_context_manager_logs_out(fake):
+    s = fake.mount_on(requests.Session())
+    fake.add("GET", "/logout", None, status=303)
+    with TrafficGenClient("http://h:9102", session=s):
+        pass
+    assert fake.calls[-1]["path"] == "/logout"

@@ -3,7 +3,7 @@
   "info": {
     "title": "Packetronix Traffic Generator API",
     "version": "26.10.22.1",
-    "description": "REST API of the Packetronix Traffic Generator appliance. Served under /TGAPI."
+    "description": "REST API of the Packetronix Traffic Generator appliance. Served under /TGAPI. When authentication is enabled, sign in first with POST /login (form fields username and password) and keep the session cookie."
   },
   "servers": [
     {

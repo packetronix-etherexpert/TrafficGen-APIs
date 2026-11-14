@@ -27,7 +27,7 @@ GitLab CI ([`.gitlab-ci.yml`](.gitlab-ci.yml)) and Jenkins ([`Jenkinsfile`](Jenk
 
 - Python 3.10+
 - Network access to a Traffic Generator appliance (REST API on port 9102 by default)
-- An API token, if the appliance requires authentication - see [authentication](docs/authentication.md)
+- A user account on the appliance, if it requires login (the same account as the web UI) - see [authentication](docs/authentication.md)
 
 ## Install
 
@@ -42,7 +42,8 @@ pip install -e sdk/
 ```python
 from trafficgen_sdk import TrafficGenClient
 
-tg = TrafficGenClient("http://10.0.0.5:9102", token="pxtg_...")   # omit token if the API is open
+tg = TrafficGenClient("https://10.0.0.5", verify_tls=False)   # verify_tls=False: self-signed certificate
+tg.login("ci", "your-password")                               # skip if the appliance does not require login
 
 print(tg.system_info())
 print(tg.get_line_rate(1))                        # ports are numbered from 1
@@ -56,7 +57,8 @@ tg.stop_stream(1, 1)
 Or with plain HTTP:
 
 ```bash
-curl -H "Authorization: Bearer $TRAFFICGEN_TOKEN" http://10.0.0.5:9102/TGAPI/ports
+curl -sk -c jar.txt -d username=ci -d password="$TRAFFICGEN_PASS" https://10.0.0.5/login
+curl -sk -b jar.txt https://10.0.0.5/TGAPI/ports
 ```
 
 ## Documentation
@@ -74,8 +76,10 @@ The unit tests mock all HTTP calls and need no hardware. To also run the live sm
 Robot Framework suite (both read-only) against a real appliance:
 
 ```bash
-export TRAFFICGEN_BASE_URL=http://10.0.0.5:9102
-export TRAFFICGEN_TOKEN=pxtg_...        # only if authentication is enabled
+export TRAFFICGEN_BASE_URL=https://10.0.0.5
+export TRAFFICGEN_USER=ci               # only if the appliance requires login
+export TRAFFICGEN_PASS=...
+export TRAFFICGEN_VERIFY_TLS=0            # only for a self-signed HTTPS certificate
 
 pip install -r tests/requirements.txt -r robot/requirements.txt
 pytest tests/
@@ -83,14 +87,15 @@ robot robot/example.robot
 ```
 
 Without `TRAFFICGEN_BASE_URL` the live tests are skipped - which is also how the CI pipelines behave by
-default. To enable them in CI, set `TRAFFICGEN_BASE_URL` (variable) and `TRAFFICGEN_TOKEN` (secret).
+default. To enable them in CI, set `TRAFFICGEN_BASE_URL` (variable) and `TRAFFICGEN_USER` / `TRAFFICGEN_PASS` (secrets);
+add the variable `TRAFFICGEN_VERIFY_TLS=0` if the appliance uses a self-signed certificate.
 
 ## Refreshing the API reference
 
 The reference is generated from the appliance's own OpenAPI schema, so it cannot drift from the code:
 
 ```bash
-python docs/openapi/export_openapi.py --base-url http://10.0.0.5:9102
+python docs/openapi/export_openapi.py --base-url https://10.0.0.5 --username ci --password ... [--insecure]
 python docs/openapi/build_reference.py
 ```
 

@@ -11,11 +11,17 @@ class TrafficGenLibrary:
     def __init__(self):
         self._tg = None
 
-    def connect_to_traffic_generator(self, base_url, token=None, username=None, password=None, verify_tls=True):
-        """Open a connection. Use ``token`` (API token) or ``username``/``password`` (web-UI login)."""
-        self._tg = TrafficGenClient(base_url, token=token or None, verify=str(verify_tls).lower() != "false")
+    def connect_to_traffic_generator(self, base_url, username=None, password=None, verify_tls=True):
+        """Open a connection and, if ``username`` is given, sign in with that web-UI account
+        (needed when the appliance requires authentication)."""
+        self._tg = TrafficGenClient(base_url, verify_tls=str(verify_tls).lower() not in ("false", "0"))
         if username:
             self._tg.login(username, password or "")
+
+    def disconnect_from_traffic_generator(self):
+        if self._tg:
+            self._tg.logout()
+            self._tg = None
 
     def get_system_info(self):
         return self._tg.system_info()

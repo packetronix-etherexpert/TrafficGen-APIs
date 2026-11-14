@@ -20,11 +20,16 @@ jobs:
         run: pip install -r tests/requirements.txt
       - name: Run offline unit tests (no appliance required)
         run: pytest tests/ -v -k "not smoke_live"
+      - name: Say so when the live tests are skipped
+        if: ${{ vars.TRAFFICGEN_BASE_URL == '' && matrix.python-version == '3.12' }}
+        run: echo "::notice title=Live tests skipped::Repository variable TRAFFICGEN_BASE_URL is not set, so the live smoke tests and the Robot job did not run. Set it under Settings > Secrets and variables > Actions > Variables."
       - name: Run live smoke tests (only when an appliance is configured)
         if: ${{ vars.TRAFFICGEN_BASE_URL != '' }}
         env:
           TRAFFICGEN_BASE_URL: ${{ vars.TRAFFICGEN_BASE_URL }}
-          TRAFFICGEN_TOKEN: ${{ secrets.TRAFFICGEN_TOKEN }}
+          TRAFFICGEN_USER: ${{ secrets.TRAFFICGEN_USER }}
+          TRAFFICGEN_PASS: ${{ secrets.TRAFFICGEN_PASS }}
+          TRAFFICGEN_VERIFY_TLS: ${{ vars.TRAFFICGEN_VERIFY_TLS }}   # set to 0 only for a self-signed certificate
         run: pytest tests/test_smoke_live.py -v
 
   robot:
@@ -39,7 +44,9 @@ jobs:
       - name: Run Robot Framework suite
         env:
           TRAFFICGEN_BASE_URL: ${{ vars.TRAFFICGEN_BASE_URL }}
-          TRAFFICGEN_TOKEN: ${{ secrets.TRAFFICGEN_TOKEN }}
+          TRAFFICGEN_USER: ${{ secrets.TRAFFICGEN_USER }}
+          TRAFFICGEN_PASS: ${{ secrets.TRAFFICGEN_PASS }}
+          TRAFFICGEN_VERIFY_TLS: ${{ vars.TRAFFICGEN_VERIFY_TLS }}   # set to 0 only for a self-signed certificate
         run: robot --outputdir robot/results robot/example.robot
       - uses: actions/upload-artifact@v6
         if: always()

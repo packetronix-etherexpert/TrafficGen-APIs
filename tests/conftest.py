@@ -2,7 +2,8 @@
 
 Offline tests use ``fake`` - a requests transport adapter that records requests and returns
 canned responses, so they need neither hardware nor a network. Live tests use the
-``live_client`` fixture, which skips unless TRAFFICGEN_BASE_URL is set.
+``live_client`` fixture, which skips unless TRAFFICGEN_BASE_URL is set (and signs in when
+TRAFFICGEN_USER / TRAFFICGEN_PASS are set).
 """
 import io
 import json
@@ -19,7 +20,19 @@ class FakeAdapter(BaseAdapter):
     def __init__(self):
         super().__init__()
         self.calls = []            # (method, url, json_body)
-        self.routes = {}           # (METHOD, path-after-host) -> (status, body, headers)
+        self.routes = {}           # (METHOD, path-after-host) -> (status, body, headers) or a list of those
+        self.jar = None            # cookie jar of the session this adapter is mounted on
+
+    def mount_on(self, session):
+        """Mount on ``session`` and let it keep the cookies this fake 'server' sets (a real
+        connection does that through urllib3; the fake has to do it by hand)."""
+        session.mount("http://", self)
+        self.jar = session.cookies
+        return session
+
+    def add_sequence(self, method, path, responses):
+        """Answer successive requests to the same route with successive (status, body) pairs."""
+        self.routes[(method.upper(), path)] = [(st, body, {}) for st, body in responses]
 
     def add(self, method, path, body=None, status=200, headers=None):
         self.routes[(method.upper(), path)] = (status, body, headers or {})
@@ -29,7 +42,11 @@ class FakeAdapter(BaseAdapter):
         body = json.loads(request.body) if request.body and "json" in request.headers.get("Content-Type", "") else request.body
         self.calls.append({"method": request.method, "url": request.url, "path": path, "json": body,
                            "headers": dict(request.headers)})
-        status, payload, headers = self.routes.get((request.method, path), (404, {"detail": "no such route"}, {}))
+        route = self.routes.get((request.method, path), (404, {"detail": "no such route"}, {}))
+        status, payload, headers = route.pop(0) if isinstance(route, list) else route
+        if self.jar is not None and "Set-Cookie" in headers:
+            name, _, value = headers["Set-Cookie"].split(";")[0].partition("=")
+            self.jar.set(name, value)
         resp = requests.Response()
         resp.status_code = status
         resp.url = request.url
@@ -56,9 +73,7 @@ def fake():
 
 @pytest.fixture
 def client(fake):
-    session = requests.Session()
-    session.mount("http://", fake)
-    return TrafficGenClient("http://tg.test:9102", session=session)
+    return TrafficGenClient("http://tg.test:9102", session=fake.mount_on(requests.Session()))
 
 
 @pytest.fixture(scope="session")
@@ -66,11 +81,11 @@ def live_client():
     url = os.environ.get("TRAFFICGEN_BASE_URL")
     if not url:
         pytest.skip("TRAFFICGEN_BASE_URL not set - skipping live tests")
-    tg = TrafficGenClient(url, token=os.environ.get("TRAFFICGEN_TOKEN"),
-                          verify=os.environ.get("TRAFFICGEN_VERIFY_TLS", "1") != "0")
-    if os.environ.get("TRAFFICGEN_USER"):
+    tg = TrafficGenClient(url, verify_tls=os.environ.get("TRAFFICGEN_VERIFY_TLS", "1") != "0")
+    if os.environ.get("TRAFFICGEN_USER"):                   # needed only when the appliance requires login
         tg.login(os.environ["TRAFFICGEN_USER"], os.environ.get("TRAFFICGEN_PASS", ""))
-    return tg
+    yield tg
+    tg.logout()
 
 
 @pytest.fixture(scope="session")

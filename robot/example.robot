@@ -1,6 +1,7 @@
 *** Settings ***
 Library           TrafficGenLibrary.py
-Suite Setup       Connect To Traffic Generator    %{TRAFFICGEN_BASE_URL}    token=%{TRAFFICGEN_TOKEN=}    verify_tls=%{TRAFFICGEN_VERIFY_TLS=True}
+Suite Setup       Connect To Traffic Generator    %{TRAFFICGEN_BASE_URL}    %{TRAFFICGEN_USER=}    %{TRAFFICGEN_PASS=}    verify_tls=%{TRAFFICGEN_VERIFY_TLS=True}
+Suite Teardown    Disconnect From Traffic Generator
 
 *** Test Cases ***
 Appliance Reports Its Version

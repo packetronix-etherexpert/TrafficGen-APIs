@@ -11,7 +11,8 @@ pip install -e sdk/          # from a clone of this repository
 ```python
 from trafficgen_sdk import TrafficGenClient, TrafficGenError
 
-tg = TrafficGenClient("http://10.0.0.5:9102", token="pxtg_...")   # token only if the appliance requires one
+tg = TrafficGenClient("https://10.0.0.5", verify_tls=False)   # verify_tls=False: self-signed certificate
+tg.login("ci", "your-password")     # only if the appliance requires login; signs in again if the session expires
 
 print(tg.system_info())
 print(tg.get_line_rate(1))                    # ports are numbered from 1
@@ -46,4 +47,5 @@ or connection failure - it never returns an error dictionary.
 current settings first and change only the fields you pass. Field names and types are in the
 [API reference](../docs/api-reference.md) (`PortSettingsModel`, `StreamSettingsModel`, ...).
 
-Authentication: see [docs/authentication.md](../docs/authentication.md).
+`TrafficGenClient` is also a context manager (`with ... as tg:` signs out on exit), and has `login()` /
+`logout()`. Authentication: see [docs/authentication.md](../docs/authentication.md).

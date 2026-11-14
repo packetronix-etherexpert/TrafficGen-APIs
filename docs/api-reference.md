@@ -1,6 +1,6 @@
 # Packetronix Traffic Generator API - reference
 
-Version 26.10.22.1. Base path: `/TGAPI` (for example `http://<appliance>:9102/TGAPI/ports`). Ports are numbered from 1. See [authentication](authentication.md) for tokens.
+Version 26.10.22.1. Base path: `/TGAPI` (for example `http://<appliance>:9102/TGAPI/ports`). Ports are numbered from 1. When the appliance requires authentication, sign in first - see [authentication](authentication.md).
 
 Generated from [`openapi/openapi.json`](openapi/openapi.json); an interactive view is in [`openapi/redoc.html`](openapi/redoc.html).
 

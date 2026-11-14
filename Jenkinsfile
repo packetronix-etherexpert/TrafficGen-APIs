@@ -1,11 +1,12 @@
-// Set TRAFFICGEN_BASE_URL (secret text) and TRAFFICGEN_TOKEN (secret text) as Jenkins credentials.
+// Set TRAFFICGEN_BASE_URL, TRAFFICGEN_USER and TRAFFICGEN_PASS (all 'Secret text') as Jenkins credentials.
 // Without a base URL only the offline unit tests run.
 pipeline {
     agent any
 
     environment {
         TRAFFICGEN_BASE_URL = credentials('TRAFFICGEN_BASE_URL')
-        TRAFFICGEN_TOKEN    = credentials('TRAFFICGEN_TOKEN')
+        TRAFFICGEN_USER     = credentials('TRAFFICGEN_USER')
+        TRAFFICGEN_PASS     = credentials('TRAFFICGEN_PASS')
     }
 
     stages {

@@ -28,53 +28,80 @@ class TrafficGenError(Exception):
 class TrafficGenClient:
     """Client for one Traffic Generator appliance.
 
+    Authentication works like the web UI: when the appliance requires it, call :meth:`login` with a
+    user account's username and password. The session cookie is kept and reused for every call, and
+    the client signs in again by itself if the session expires. (There are no separate API tokens.)
+
     Args:
-        base_url: Appliance address, e.g. ``"http://10.0.0.5:9102"``. A trailing
-            ``/TGAPI`` is accepted and not duplicated.
-        token: API token (``pxtg_...``), sent as ``Authorization: Bearer``. Needed only
-            when the appliance requires authentication for the REST API.
-        verify: TLS certificate verification (``False`` for self-signed appliances, or a
-            path to a CA bundle).
+        base_url: Appliance address, e.g. ``"https://10.0.0.5"``. A trailing ``/TGAPI`` is accepted
+            and not duplicated.
         timeout: Per-request timeout in seconds.
-        session: Optional preconfigured ``requests.Session``.
+        verify_tls: TLS certificate verification. ``False`` for a self-signed certificate, or a
+            path to a CA bundle.
+        session: Optional preconfigured ``requests.Session`` (mainly for tests).
 
     Example:
-        >>> tg = TrafficGenClient("http://10.0.0.5:9102", token="pxtg_...")
-        >>> tg.system_info()
+        >>> with TrafficGenClient("https://10.0.0.5", verify_tls=False) as tg:
+        ...     tg.login("ci", "secret")
+        ...     tg.system_info()
     """
 
-    def __init__(self, base_url: str, token: Optional[str] = None, *, verify: Any = True,
-                 timeout: float = 30.0, session: Optional[requests.Session] = None):
+    def __init__(self, base_url: str, timeout: float = 30.0, verify_tls: Any = True,
+                 session: Optional[requests.Session] = None):
         parts = urlsplit(base_url.rstrip("/"))
         path = parts.path[: -len(API_PREFIX)] if parts.path.endswith(API_PREFIX) else parts.path
         self._root = urlunsplit((parts.scheme, parts.netloc, path.rstrip("/"), "", ""))
         self.api_url = self._root + API_PREFIX
         self.timeout = timeout
-        self.session = session or requests.Session()
-        self.session.verify = verify
-        if token:
-            self.session.headers["Authorization"] = f"Bearer {token}"
+        self._session = session or requests.Session()
+        self._session.verify = verify_tls
+        self._credentials: Optional[Tuple[str, str]] = None
 
-    # ------------------------------------------------------------------ plumbing
+    def __enter__(self) -> "TrafficGenClient":
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        self.logout()
+
+    # ------------------------------------------------------------------ session
     def login(self, username: str, password: str) -> None:
-        """Start a cookie session with a web-UI account (alternative to an API token)."""
+        """Sign in with a web-UI account; the session cookie is kept for later calls.
+
+        Raises :class:`TrafficGenError` (status 401) for a wrong username or password, or 429 after
+        too many failed attempts (wait a few minutes).
+        """
         try:
-            r = self.session.post(self._root + "/login", data={"username": username, "password": password},
-                                  timeout=self.timeout, allow_redirects=False)
+            r = self._session.post(self._root + "/login", data={"username": username, "password": password},
+                                   timeout=self.timeout, allow_redirects=False)
         except requests.RequestException as e:
             raise TrafficGenError(f"Cannot reach {self._root}: {e}") from e
-        if r.status_code != 303:
-            raise TrafficGenError("Login failed: invalid username or password"
-                                  if r.status_code in (401, 429) else f"Login failed: HTTP {r.status_code}",
-                                  r.status_code)
+        if r.status_code == 303:
+            self._credentials = (username, password)
+            return
+        if r.status_code == 429:
+            raise TrafficGenError("Too many failed logins - wait a few minutes and retry", 429)
+        raise TrafficGenError("Login failed: invalid username or password" if r.status_code == 401
+                              else f"Login failed: HTTP {r.status_code}", r.status_code)
 
+    def logout(self) -> None:
+        """End the session (safe to call when not logged in)."""
+        self._credentials = None
+        try:
+            self._session.get(self._root + "/logout", timeout=self.timeout, allow_redirects=False)
+        except requests.RequestException:
+            pass
+
+    # ------------------------------------------------------------------ plumbing
     def _request(self, method: str, path: str, *, json: Any = None, params: Optional[dict] = None,
-                 raw: bool = False) -> Any:
+                 raw: bool = False, _retry: bool = True) -> Any:
         url = self.api_url + "/" + path.lstrip("/")
         try:
-            r = self.session.request(method, url, json=json, params=params, timeout=self.timeout, stream=raw)
+            r = self._session.request(method, url, json=json, params=params, timeout=self.timeout, stream=raw)
         except requests.RequestException as e:
             raise TrafficGenError(f"{method} {url} failed: {e}") from e
+        if r.status_code == 401 and _retry and self._credentials:     # session expired: sign in again once
+            self.login(*self._credentials)
+            return self._request(method, path, json=json, params=params, raw=raw, _retry=False)
         if not r.ok:
             try:
                 body = r.json()
