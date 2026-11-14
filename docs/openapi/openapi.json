@@ -1,0 +1,3060 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Packetronix Traffic Generator API",
+    "version": "26.10.22.1",
+    "description": "REST API of the Packetronix Traffic Generator appliance. Served under /TGAPI."
+  },
+  "servers": [
+    {
+      "url": "/TGAPI"
+    }
+  ],
+  "paths": {
+    "/system/hardware/close": {
+      "post": {
+        "summary": "Close Hardware",
+        "description": "Close the hardware interface to allow firmware reloads.",
+        "operationId": "close_hardware_system_hardware_close_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/hardware/reinit": {
+      "post": {
+        "summary": "Reinit Hardware",
+        "description": "Re-initialize the hardware interface after firmware reload.",
+        "operationId": "reinit_hardware_system_hardware_reinit_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/help": {
+      "get": {
+        "summary": "Help",
+        "operationId": "help_help_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/info": {
+      "get": {
+        "summary": "System Info",
+        "description": "Retrieve system information and status.",
+        "operationId": "system_info_system_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports": {
+      "get": {
+        "summary": "Get Ports",
+        "description": "Get configuration for all ports.",
+        "operationId": "get_ports_ports_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortSettingsModel"
+                  },
+                  "type": "array",
+                  "title": "Response Get Ports Ports Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}": {
+      "get": {
+        "summary": "Get Port",
+        "description": "Get configuration for a specific port.",
+        "operationId": "get_port_ports__port_no__get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortSettingsModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Port",
+        "description": "Update configuration for a specific port and apply to hardware.",
+        "operationId": "update_port_ports__port_no__put",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortSettingsModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/arp": {
+      "post": {
+        "summary": "Send Arp",
+        "description": "Send an ARP request to the Gateway IP on a specific port.",
+        "operationId": "send_arp_ports__port_no__arp_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GatewayIPModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/ping": {
+      "post": {
+        "summary": "Send Ping",
+        "description": "Send an ICMP Ping request to the Gateway IP on a specific port.",
+        "operationId": "send_ping_ports__port_no__ping_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GatewayIPModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streams": {
+      "get": {
+        "summary": "Get Streams",
+        "description": "Get all stream configurations.",
+        "operationId": "get_streams_streams_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StreamSettingsModel"
+                  },
+                  "type": "array",
+                  "title": "Response Get Streams Streams Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streams/{port_no}": {
+      "get": {
+        "summary": "Get Streams By Port",
+        "description": "Get all streams associated with a specific port.",
+        "operationId": "get_streams_by_port_streams__port_no__get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StreamSettingsModel"
+                  },
+                  "title": "Response Get Streams By Port Streams  Port No  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streams/{port_no}/{stream_no}": {
+      "put": {
+        "summary": "Update Stream",
+        "description": "Update a specific stream configuration and apply to hardware.",
+        "operationId": "update_stream_streams__port_no___stream_no__put",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          },
+          {
+            "name": "stream_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Stream No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamSettingsModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streams/{port_no}/{stream_no}/stop": {
+      "post": {
+        "summary": "Stop Stream",
+        "description": "Stop traffic generation for a specific stream.",
+        "operationId": "stop_stream_streams__port_no___stream_no__stop_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          },
+          {
+            "name": "stream_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Stream No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streams/{port_no}/{stream_no}/error": {
+      "post": {
+        "summary": "Inject Stream Error",
+        "description": "Inject a single error of a specific type into a running stream.",
+        "operationId": "inject_stream_error_streams__port_no___stream_no__error_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          },
+          {
+            "name": "stream_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Stream No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorActionModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/streams/{port_no}": {
+      "get": {
+        "summary": "Get Stream Stats",
+        "description": "Get stream statistics for a specific port.",
+        "operationId": "get_stream_stats_stats_streams__port_no__get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/streams": {
+      "get": {
+        "summary": "Get All Stream Stats",
+        "description": "Get stream statistics for all ports simultaneously.",
+        "operationId": "get_all_stream_stats_stats_streams_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/streams/batch": {
+      "post": {
+        "summary": "Get Batch Stream Stats",
+        "description": "Retrieve specific stream statistics in a single batch request.",
+        "operationId": "get_batch_stream_stats_stats_streams_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchStreamQueryModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports": {
+      "get": {
+        "summary": "Get All Port Stats",
+        "description": "Get port statistics for all ports simultaneously.",
+        "operationId": "get_all_port_stats_stats_ports_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports/{port_no}": {
+      "get": {
+        "summary": "Get Port Stats",
+        "description": "Get port statistics for a specific port.",
+        "operationId": "get_port_stats_stats_ports__port_no__get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports/{port_no}/mac": {
+      "get": {
+        "summary": "Get Port Mac Stats",
+        "description": "Get MAC-level Tx/Rx counters for a specific port, as {\"tx\": [...], \"rx\": [...]}. Preferred over /stats/ports/{port_no} for reading counters.",
+        "operationId": "get_port_mac_stats_stats_ports__port_no__mac_get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports/{port_no}/reset": {
+      "post": {
+        "summary": "Reset Port Stats",
+        "description": "Reset statistics for a specific port.",
+        "operationId": "reset_port_stats_stats_ports__port_no__reset_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports/{port_no}/streams/{stream_no}/reset": {
+      "post": {
+        "summary": "Reset Stream Stats",
+        "description": "Reset statistics for a specific stream on a port.",
+        "operationId": "reset_stream_stats_stats_ports__port_no__streams__stream_no__reset_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          },
+          {
+            "name": "stream_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Stream No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetStreamStatsModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/link_status": {
+      "get": {
+        "summary": "Get Port Link Status",
+        "description": "Get link status for a specific port.",
+        "operationId": "get_port_link_status_ports__port_no__link_status_get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/line_rate": {
+      "put": {
+        "summary": "Set Port Line Rate",
+        "description": "Set line rate for a specific port. rate_sel: 1=1G, 2=10G, 3=25G, 4=100G, 5=100G+FEC",
+        "operationId": "set_port_line_rate_ports__port_no__line_rate_put",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          },
+          {
+            "name": "rate_sel",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Rate Sel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Port Line Rate",
+        "description": "Get line rate for a specific port.",
+        "operationId": "get_port_line_rate_ports__port_no__line_rate_get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/bert/pattern": {
+      "post": {
+        "summary": "Set Bert Pattern",
+        "description": "Set the RX BERT pattern for a specific port.",
+        "operationId": "set_bert_pattern_ports__port_no__bert_pattern_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BertPatternModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports/{port_no}/bert/enable": {
+      "post": {
+        "summary": "Enable Bert",
+        "description": "Enable or disable RX BERT on a specific port.",
+        "operationId": "enable_bert_ports__port_no__bert_enable_post",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BertEnableModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/ports/{port_no}/bert": {
+      "get": {
+        "summary": "Get Bert Stats",
+        "description": "Get BERT statistics for a specific port.",
+        "operationId": "get_bert_stats_stats_ports__port_no__bert_get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/configs": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "List Y1564 Configs",
+        "description": "List saved test setups (newest first), same files the UI's Load Config menu shows.",
+        "operationId": "list_y1564_configs_y1564_configs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Save Y1564 Config",
+        "description": "Save a reusable named test setup, in the same format the UI's Save Config\nmenu item writes, so it also shows up in the UI's Load Config list.",
+        "operationId": "save_y1564_config_y1564_configs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Y1564SaveConfigModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/configs/{filename}": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Get Y1564 Config",
+        "description": "Retrieve a saved test setup's raw contents (config + services + selected_services).",
+        "operationId": "get_y1564_config_y1564_configs__filename__get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/start": {
+      "post": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Start Y1564 Test",
+        "description": "Start a Y.1564 test run in the background. Provide either `config_name`\n(a setup already saved via POST /y1564/configs) or an inline `setup`.\nPoll GET /y1564/status for progress and GET /y1564/results once it completes.",
+        "operationId": "start_y1564_test_y1564_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Y1564StartModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/stop": {
+      "post": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Stop Y1564 Test Api",
+        "description": "Gracefully stop the currently running Y.1564 test (same as the UI's Stop Test button).",
+        "operationId": "stop_y1564_test_api_y1564_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/status": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Get Y1564 Status",
+        "description": "Poll this periodically while a test is running for live status/progress/partial results.",
+        "operationId": "get_y1564_status_y1564_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/results": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Get Y1564 Results",
+        "description": "The full structured result of the most recently completed test (config,\nper-step config_test/perf_test results, active_services, timing, port_statistics) -\nthe same object the UI's Export PDF Report button reads from.",
+        "operationId": "get_y1564_results_y1564_results_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/report": {
+      "post": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Get Y1564 Report",
+        "description": "Generate and download the PDF report for the most recently completed test -\nidentical output to the UI's Export PDF Report button.",
+        "operationId": "get_y1564_report_y1564_report_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Y1564ReportRequestModel",
+                "default": {
+                  "prefix": "Y1564_Report"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/history": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "List Y1564 History",
+        "description": "List previously completed test result files, newest first, same list the\nUI's Test Report History dropdown shows.",
+        "operationId": "list_y1564_history_y1564_history_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/y1564/history/{filename}": {
+      "get": {
+        "tags": [
+          "Y1564"
+        ],
+        "summary": "Get Y1564 History Result",
+        "description": "Retrieve a previously completed test's full result (same shape as GET /y1564/results).",
+        "operationId": "get_y1564_history_result_y1564_history__filename__get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/capture/filters": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Get Capture Filters",
+        "description": "Capture filter of every port, read back from the hardware (null: no rule on that port).",
+        "operationId": "get_capture_filters_capture_filters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/capture/filters/{port_no}": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Get Capture Filter",
+        "operationId": "get_capture_filter_capture_filters__port_no__get",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureFilterModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Set Capture Filter",
+        "description": "Apply a filter to a port and return it as read back from the hardware.",
+        "operationId": "set_capture_filter_capture_filters__port_no__put",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureFilterModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureFilterModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Delete Capture Filter",
+        "description": "Remove the port's filter rule. With no rule the port's traffic is not delivered to the capture path.",
+        "operationId": "delete_capture_filter_capture_filters__port_no__delete",
+        "parameters": [
+          {
+            "name": "port_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Port No"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captures": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "List Captures",
+        "operationId": "list_captures_captures_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Start Capture",
+        "description": "Start a capture. Returns immediately with its capture_id; poll GET /captures/{id}.",
+        "operationId": "start_capture_captures_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureStartModel",
+                "default": {
+                  "duration_s": 10,
+                  "max_packets": 100000,
+                  "restore_filters": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captures/{capture_id}": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Get Capture",
+        "operationId": "get_capture_captures__capture_id__get",
+        "parameters": [
+          {
+            "name": "capture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Capture Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Delete Capture",
+        "operationId": "delete_capture_captures__capture_id__delete",
+        "parameters": [
+          {
+            "name": "capture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Capture Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captures/{capture_id}/cancel": {
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Cancel Capture",
+        "description": "Ask a running capture to finish early; what was captured so far is kept (state 'cancelled').",
+        "operationId": "cancel_capture_captures__capture_id__cancel_post",
+        "parameters": [
+          {
+            "name": "capture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Capture Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captures/{capture_id}/pcap": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Download Capture",
+        "operationId": "download_capture_captures__capture_id__pcap_get",
+        "parameters": [
+          {
+            "name": "capture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Capture Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captures/{capture_id}/analysis": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Analyze Capture",
+        "description": "The Capture tab's analyses as JSON; with none of the flags set, all three are returned.\n\nloss    - per-stream lost packets and burst lengths from the sequence numbers (Loss / Burst Analysis)\nlength  - per-stream frame size statistics and length counts (Packet Length Analysis)\nlatency - per-stream latency and jitter statistics in microseconds (first 16 streams per receive port)",
+        "operationId": "analyze_capture_captures__capture_id__analysis_get",
+        "parameters": [
+          {
+            "name": "capture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Capture Id"
+            }
+          },
+          {
+            "name": "loss",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Loss"
+            }
+          },
+          {
+            "name": "length",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Length"
+            }
+          },
+          {
+            "name": "latency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Latency"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BatchStreamQueryModel": {
+        "properties": {
+          "queries": {
+            "items": {
+              "$ref": "#/components/schemas/StreamQueryModel"
+            },
+            "type": "array",
+            "title": "Queries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "queries"
+        ],
+        "title": "BatchStreamQueryModel"
+      },
+      "BertEnableModel": {
+        "properties": {
+          "enable": {
+            "type": "integer",
+            "title": "Enable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enable"
+        ],
+        "title": "BertEnableModel"
+      },
+      "BertPatternModel": {
+        "properties": {
+          "pattern": {
+            "type": "integer",
+            "title": "Pattern"
+          },
+          "UserPattern": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userpattern"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pattern"
+        ],
+        "title": "BertPatternModel"
+      },
+      "CaptureFilterModel": {
+        "properties": {
+          "mac": {
+            "type": "string",
+            "title": "Mac",
+            "description": "Destination MAC (aa:bb:cc:dd:ee:ff); must be blank when mac_filter is 'promiscuous'.",
+            "default": ""
+          },
+          "mac_filter": {
+            "type": "string",
+            "enum": [
+              "unicast",
+              "multicast",
+              "broadcast",
+              "promiscuous"
+            ],
+            "title": "Mac Filter",
+            "default": "promiscuous"
+          },
+          "dst_ip": {
+            "type": "string",
+            "title": "Dst Ip",
+            "description": "Destination IPv4/IPv6 address with optional /mask.",
+            "default": "0.0.0.0/0"
+          },
+          "src_ip": {
+            "type": "string",
+            "title": "Src Ip",
+            "description": "Source IPv4/IPv6 address with optional /mask.",
+            "default": "0.0.0.0/0"
+          },
+          "port_range": {
+            "type": "string",
+            "title": "Port Range",
+            "description": "TCP/UDP port range 'min-max'.",
+            "default": "0-65535"
+          },
+          "vlan_range": {
+            "type": "string",
+            "title": "Vlan Range",
+            "description": "'disable', a VLAN ID, or 'min-max' (1-4096).",
+            "default": "disable"
+          },
+          "ether_type": {
+            "type": "string",
+            "title": "Ether Type",
+            "description": "Ethertype, or 'disable'.",
+            "default": "disable"
+          },
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "any",
+              "tcp",
+              "udp",
+              "icmp"
+            ],
+            "title": "Protocol",
+            "default": "any"
+          },
+          "errored": {
+            "type": "string",
+            "enum": [
+              "Enable",
+              "Disable"
+            ],
+            "title": "Errored",
+            "description": "Forward frames with FCS, IP or UDP checksum errors.",
+            "default": "Enable"
+          }
+        },
+        "type": "object",
+        "title": "CaptureFilterModel",
+        "description": "Defaults are the Capture tab's defaults: accept everything."
+      },
+      "CaptureStartModel": {
+        "properties": {
+          "duration_s": {
+            "type": "integer",
+            "maximum": 3600.0,
+            "minimum": 1.0,
+            "title": "Duration S",
+            "description": "Stop after this many seconds.",
+            "default": 10
+          },
+          "max_packets": {
+            "type": "integer",
+            "maximum": 10000000.0,
+            "minimum": 1.0,
+            "title": "Max Packets",
+            "description": "Stop after this many packets.",
+            "default": 100000
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/CaptureFilterModel"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filters",
+            "description": "Optional filters to apply before capturing, keyed by receive port number (\"1\", \"2\")."
+          },
+          "restore_filters": {
+            "type": "boolean",
+            "title": "Restore Filters",
+            "description": "Put each overridden port's previous filter back when the capture ends.",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "CaptureStartModel"
+      },
+      "ErrorActionModel": {
+        "properties": {
+          "error_type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error_type"
+        ],
+        "title": "ErrorActionModel"
+      },
+      "GatewayIPModel": {
+        "properties": {
+          "gateway_ip": {
+            "type": "string",
+            "title": "Gateway Ip"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gateway_ip"
+        ],
+        "title": "GatewayIPModel"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PacketModifierModel": {
+        "properties": {
+          "Enable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enable"
+          },
+          "Offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset"
+          },
+          "ModifierType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiertype"
+          },
+          "ModifierValueMin": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiervaluemin"
+          },
+          "ModifierValueMax": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiervaluemax"
+          },
+          "StepSize": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stepsize"
+          },
+          "RepeatCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repeatcount"
+          },
+          "Mask": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask"
+          }
+        },
+        "type": "object",
+        "title": "PacketModifierModel"
+      },
+      "PortSettingsModel": {
+        "properties": {
+          "PortNo": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portno"
+          },
+          "PortMode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portmode"
+          },
+          "FlowControl": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowcontrol"
+          },
+          "MulticastDrop": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multicastdrop"
+          },
+          "BroadcastDrop": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Broadcastdrop"
+          },
+          "LoopbackLayer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loopbacklayer"
+          },
+          "PIDType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pidtype"
+          },
+          "TrafficMode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trafficmode"
+          },
+          "SeqRate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seqrate"
+          },
+          "BurstPeriod": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burstperiod"
+          },
+          "LatencyMeas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latencymeas"
+          },
+          "MacAddress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macaddress"
+          },
+          "IPAddress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ipaddress"
+          },
+          "SubnetMask": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subnetmask"
+          },
+          "IMIX": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imix"
+          }
+        },
+        "type": "object",
+        "title": "PortSettingsModel"
+      },
+      "ResetStreamStatsModel": {
+        "properties": {
+          "tx": {
+            "type": "boolean",
+            "title": "Tx",
+            "default": true
+          },
+          "rx": {
+            "type": "boolean",
+            "title": "Rx",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "ResetStreamStatsModel"
+      },
+      "StreamQueryModel": {
+        "properties": {
+          "port_no": {
+            "type": "integer",
+            "title": "Port No"
+          },
+          "stream_no": {
+            "type": "integer",
+            "title": "Stream No"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_no",
+          "stream_no"
+        ],
+        "title": "StreamQueryModel"
+      },
+      "StreamSettingsModel": {
+        "properties": {
+          "index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index"
+          },
+          "PortNo": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portno"
+          },
+          "StreamEnable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Streamenable"
+          },
+          "StreamNo": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Streamno"
+          },
+          "PIDNo": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pidno"
+          },
+          "Rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          },
+          "BurstSize": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burstsize"
+          },
+          "BurstDensity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burstdensity"
+          },
+          "SequencePacket": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequencepacket"
+          },
+          "PacketCounts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packetcounts"
+          },
+          "FrameLenType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Framelentype"
+          },
+          "FrameLenMin": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Framelenmin"
+          },
+          "FrameLenMax": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Framelenmax"
+          },
+          "EMixLen": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emixlen"
+          },
+          "PayloadType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payloadtype"
+          },
+          "PayloadData": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payloaddata"
+          },
+          "Layers": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Layers"
+          },
+          "MAC_DA": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac Da"
+          },
+          "MAC_SA": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac Sa"
+          },
+          "IP_DA": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Da"
+          },
+          "IP_SA": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Sa"
+          },
+          "Port_DA": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Da"
+          },
+          "Port_SA": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Sa"
+          },
+          "HeaderLen": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headerlen",
+            "default": 0
+          },
+          "RAW": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw"
+          },
+          "NoOfModifiers": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Noofmodifiers"
+          },
+          "ErrorType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Errortype"
+          },
+          "ErrorAction": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erroraction"
+          },
+          "PacketModifier": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PacketModifierModel"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packetmodifier"
+          }
+        },
+        "type": "object",
+        "title": "StreamSettingsModel"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Y1564ReportRequestModel": {
+        "properties": {
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          },
+          "site": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Site"
+          },
+          "dut": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "prefix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prefix",
+            "default": "Y1564_Report"
+          }
+        },
+        "type": "object",
+        "title": "Y1564ReportRequestModel"
+      },
+      "Y1564SaveConfigModel": {
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/Y1564TestConfigModel"
+          },
+          "services": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "selected_services": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Services"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "config",
+          "services",
+          "name"
+        ],
+        "title": "Y1564SaveConfigModel"
+      },
+      "Y1564SetupModel": {
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/Y1564TestConfigModel"
+          },
+          "services": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "selected_services": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Services"
+          }
+        },
+        "type": "object",
+        "required": [
+          "config",
+          "services"
+        ],
+        "title": "Y1564SetupModel"
+      },
+      "Y1564StartModel": {
+        "properties": {
+          "config_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config Name"
+          },
+          "setup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Y1564SetupModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Y1564StartModel"
+      },
+      "Y1564TestConfigModel": {
+        "properties": {
+          "direction": {
+            "type": "string",
+            "title": "Direction"
+          },
+          "line_rate": {
+            "type": "string",
+            "title": "Line Rate"
+          },
+          "west_loc": {
+            "type": "string",
+            "title": "West Loc",
+            "default": "Local"
+          },
+          "remote_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote Ip"
+          },
+          "remote_port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote Port"
+          },
+          "remote_hw_port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote Hw Port"
+          },
+          "max_flr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Flr"
+          },
+          "max_ftd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Ftd"
+          },
+          "max_fdv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Fdv"
+          },
+          "min_avail": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Avail"
+          },
+          "ses_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ses Threshold"
+          },
+          "enable_config_test": {
+            "type": "boolean",
+            "title": "Enable Config Test",
+            "default": true
+          },
+          "step_duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Duration",
+            "default": 10.0
+          },
+          "cir_steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cir Steps"
+          },
+          "test_eir": {
+            "type": "boolean",
+            "title": "Test Eir",
+            "default": false
+          },
+          "test_cbs": {
+            "type": "boolean",
+            "title": "Test Cbs",
+            "default": false
+          },
+          "test_ebs": {
+            "type": "boolean",
+            "title": "Test Ebs",
+            "default": false
+          },
+          "test_policing": {
+            "type": "boolean",
+            "title": "Test Policing",
+            "default": false
+          },
+          "policing_m_factor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policing M Factor",
+            "default": 25.0
+          },
+          "enable_perf_test": {
+            "type": "boolean",
+            "title": "Enable Perf Test",
+            "default": true
+          },
+          "perf_duration_preset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perf Duration Preset",
+            "default": "15 Seconds"
+          },
+          "perf_duration_custom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perf Duration Custom"
+          }
+        },
+        "type": "object",
+        "required": [
+          "direction",
+          "line_rate"
+        ],
+        "title": "Y1564TestConfigModel"
+      }
+    }
+  }
+}

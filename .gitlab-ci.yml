@@ -1,0 +1,54 @@
+stages:
+  - test
+  - robot
+  - pages
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+pytest:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install -r tests/requirements.txt
+    - pytest tests/ -v -k "not smoke_live"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main"'
+
+pytest_live_smoke:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install -r tests/requirements.txt
+    - pytest tests/test_smoke_live.py -v
+  rules:
+    - if: '$TRAFFICGEN_BASE_URL'
+
+robot_framework:
+  stage: robot
+  image: python:3.11-slim
+  script:
+    - pip install -r robot/requirements.txt
+    - robot --outputdir robot/results robot/example.robot
+  artifacts:
+    when: always
+    paths:
+      - robot/results
+  rules:
+    - if: '$TRAFFICGEN_BASE_URL'
+
+pages:
+  stage: pages
+  image: alpine:3.19
+  script:
+    - mkdir -p public
+    - cp -r docs/* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'

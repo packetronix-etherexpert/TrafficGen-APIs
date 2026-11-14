@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+.cache/
+.pytest_cache/
+results/
+robot/results/
+*.egg-info/
+build/
+dist/
+output.xml
+log.html
+report.html
+*.pcap
+.env

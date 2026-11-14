@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install SDK and test dependencies
+        run: pip install -r tests/requirements.txt
+      - name: Run offline unit tests (no appliance required)
+        run: pytest tests/ -v -k "not smoke_live"
+      - name: Run live smoke tests (only when an appliance is configured)
+        if: ${{ vars.TRAFFICGEN_BASE_URL != '' }}
+        env:
+          TRAFFICGEN_BASE_URL: ${{ vars.TRAFFICGEN_BASE_URL }}
+          TRAFFICGEN_TOKEN: ${{ secrets.TRAFFICGEN_TOKEN }}
+        run: pytest tests/test_smoke_live.py -v
+
+  robot:
+    runs-on: ubuntu-latest
+    if: ${{ vars.TRAFFICGEN_BASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r robot/requirements.txt
+      - name: Run Robot Framework suite
+        env:
+          TRAFFICGEN_BASE_URL: ${{ vars.TRAFFICGEN_BASE_URL }}
+          TRAFFICGEN_TOKEN: ${{ secrets.TRAFFICGEN_TOKEN }}
+        run: robot --outputdir robot/results robot/example.robot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-results
+          path: robot/results
+
+  publish-api-docs:
+    runs-on: ubuntu-latest
+    needs: pytest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish docs/ to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
